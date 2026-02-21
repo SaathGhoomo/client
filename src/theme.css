@@ -1509,3 +1509,213 @@ footer {
     padding: 48px 24px;
   }
 }
+
+@media (max-width: 1024px) {
+  .nav-container {
+    padding: 0 18px;
+  }
+
+  section {
+    padding: 84px 22px;
+  }
+
+  .feat-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .nav-container {
+    padding: 0 14px;
+  }
+
+  .hero {
+    padding: 104px 16px 64px;
+  }
+
+  section {
+    padding: 72px 16px;
+  }
+
+  .hero-sub {
+    font-size: 1rem;
+  }
+
+  .btn-hero {
+    padding: 14px 22px;
+  }
+
+  .hero-btns {
+    gap: 10px;
+  }
+
+  .hero-stats {
+    margin-top: 42px;
+  }
+
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .step-card {
+    padding: 28px 20px;
+  }
+
+  .feat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feat-card {
+    padding: 22px;
+  }
+
+  .coins-grid {
+    gap: 26px;
+  }
+
+  .coin-orb {
+    width: 170px;
+    height: 170px;
+  }
+
+  .cta-btns {
+    gap: 10px;
+  }
+
+  footer {
+    padding: 44px 16px 28px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .auth-overlay {
+    align-items: flex-start;
+    padding: 18px;
+    overflow: auto;
+  }
+
+  .flip-wrapper {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-row {
+    height: 60px;
+  }
+
+  .nav-logo {
+    font-size: 1.25rem;
+  }
+
+  .nav-logo-mark {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+  }
+
+  .nav-mobile-link {
+    padding: 14px 2px;
+    font-size: 0.95rem;
+  }
+
+  .nav-mobile-auth button {
+    padding: 13px;
+  }
+
+  .hero {
+    padding: 98px 14px 58px;
+  }
+
+  .hero-badge {
+    padding: 7px 14px;
+    letter-spacing: 0.08em;
+  }
+
+  .hero-title {
+    font-size: clamp(2.2rem, 10vw, 3.2rem);
+  }
+
+  .hero-sub {
+    font-size: 0.98rem;
+    line-height: 1.7;
+    margin-bottom: 34px;
+  }
+
+  .hero-btns {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-hero {
+    width: 100%;
+  }
+
+  .hero-stats {
+    gap: 14px;
+  }
+
+  section {
+    padding: 64px 14px;
+  }
+
+  .s-sub {
+    margin-bottom: 34px;
+  }
+
+  .refer-card {
+    padding: 30px 16px;
+  }
+
+  .refer-code {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    letter-spacing: 0.08em;
+    font-size: 1.1rem;
+  }
+
+  .refer-copy {
+    padding: 6px 2px;
+  }
+
+  .cta-card {
+    padding: 40px 18px;
+  }
+
+  .auth-close {
+    top: 14px;
+    right: 14px;
+  }
+
+  .auth-card {
+    padding: 28px 18px 22px;
+  }
+
+  .auth-title {
+    font-size: 1.65rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .badge-dot,
+  .coin-orb,
+  .footer-hearts,
+  .arc-ring::before {
+    animation: none;
+  }
+
+  .btn-primary-nav,
+  .btn-hero-primary,
+  .btn-auth {
+    transition: none;
+  }
+}
