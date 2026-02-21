@@ -38,7 +38,7 @@ export default function Refer({ onOpenAuth }) {
             onClick={() => onOpenAuth?.("register")}
             type="button"
           >
-            Claim Your Code ✦
+            Claim Your Code 🎁
           </button>
         </div>
       </div>

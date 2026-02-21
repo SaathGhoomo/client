@@ -32,7 +32,7 @@ export default function HowItWorks() {
 
           <div className="step-card gc">
             <div className="step-num">03</div>
-            <div className="step-icon">✨</div>
+            <div className="step-icon">🌟</div>
             <h3>Meet &amp; Explore</h3>
             <p>
               Meet your companion and enjoy your adventure. Earn SaathCoins on
@@ -42,7 +42,7 @@ export default function HowItWorks() {
 
           <div className="step-card gc">
             <div className="step-num">04</div>
-            <div className="step-icon">⭐</div>
+            <div className="step-icon">💎</div>
             <h3>Rate &amp; Earn</h3>
             <p>
               Share your experience, leave a review, and earn bonus coins. Help

@@ -4,7 +4,7 @@ export default function Hero({ onOpenAuth }) {
       <div className="hero-inner">
         <div className="hero-badge">
           <div className="badge-dot" />
-          Now live across 12 cities
+          🌍 Now live across 12 cities
         </div>
 
         <h1 className="hero-title">
@@ -23,7 +23,7 @@ export default function Hero({ onOpenAuth }) {
             onClick={() => onOpenAuth?.("register")}
             type="button"
           >
-            Start Your Journey ✦
+            Start Your Journey 🚀
           </button>
           <button
             className="btn-hero btn-hero-ghost"

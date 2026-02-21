@@ -1,3 +1,5 @@
+import ThreeCoin from "../ThreeCoin";
+
 export default function SaathCoins() {
   return (
     <section id="saath-coins">
@@ -37,10 +39,7 @@ export default function SaathCoins() {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div className="coin-orb">
-              <div className="coin-symbol">₡</div>
-              <div className="coin-label">SaathCoins</div>
-            </div>
+            <ThreeCoin />
           </div>
         </div>
       </div>

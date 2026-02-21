@@ -18,10 +18,12 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 106.25%;
 }
 
 body {
   font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
   background: radial-gradient(
     ellipse at 30% 10%,
     #3d0020 0%,
@@ -32,6 +34,12 @@ body {
   min-height: 100vh;
   color: #fff;
   overflow-x: hidden;
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 100%;
+  }
 }
 
 #threeCanvas {
@@ -701,12 +709,13 @@ section {
   font-family: 'Cormorant Garamond', serif;
   font-size: 3.2rem;
   font-weight: 600;
-  color: rgba(255, 45, 85, 0.15);
+  color: rgba(255, 255, 255, 0.28);
   line-height: 1;
   margin-bottom: 14px;
 }
 
-.step-icon {
+.step-icon,
+.feat-icon {
   width: 52px;
   height: 52px;
   border-radius: 14px;
@@ -721,6 +730,15 @@ section {
   align-items: center;
   justify-content: center;
   font-size: 1.4rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(255, 45, 85, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.step-icon:hover,
+.feat-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 45, 85, 0.12);
 }
 
 .step-card h3 {
@@ -802,32 +820,28 @@ section {
   border-radius: 50%;
   background: radial-gradient(
     circle at 35% 35%,
-    rgba(255, 107, 157, 0.55),
-    rgba(255, 45, 85, 0.28),
-    rgba(194, 24, 91, 0.08)
+    #ffd700,
+    #ffb347,
+    #ff8c00
   );
-  border: 2px solid rgba(255, 45, 85, 0.28);
+  border: 2px solid rgba(255, 215, 0, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  box-shadow: 0 0 55px rgba(255, 45, 85, 0.18),
-    0 0 110px rgba(255, 45, 85, 0.08);
+  box-shadow: 0 0 55px rgba(255, 215, 0, 0.18),
+    0 0 110px rgba(255, 215, 0, 0.08);
   animation: orbFloat 4s ease-in-out infinite;
   margin: 0 auto;
   font-family: 'Cormorant Garamond', serif;
   color: #fff;
   text-align: center;
   position: relative;
+  transition: transform 0.6s ease;
 }
 
-.coin-orb::before {
-  content: '✦';
-  position: absolute;
-  top: 20px;
-  font-size: 0.75rem;
-  color: var(--blush);
-  opacity: 0.7;
+.coin-orb:hover {
+  transform: rotateY(360deg);
 }
 
 @keyframes orbFloat {
@@ -1069,6 +1083,10 @@ footer {
   line-height: 1.65;
 }
 
+.footer-brand .footer-social {
+  margin-top: 14px;
+}
+
 .footer-col h4 {
   font-size: 0.72rem;
   letter-spacing: 0.1em;
@@ -1092,18 +1110,59 @@ footer {
 }
 
 .footer-bottom {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding-top: 22px;
+  padding-top: 18px;
+  margin-top: 28px;
   border-top: 1px solid rgba(255, 45, 85, 0.08);
+}
+
+.footer-bottom-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.footer-social {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-social a {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 45, 85, 0.18);
+  background: rgba(255, 45, 85, 0.08);
+  color: rgba(255, 255, 255, 0.75);
+  transition: transform 0.18s, color 0.18s, border-color 0.18s,
+    background 0.18s;
+}
+
+.footer-social a:hover {
+  transform: translateY(-2px);
+  color: #fff;
+  border-color: rgba(255, 45, 85, 0.35);
+  background: rgba(255, 45, 85, 0.16);
+}
+
+.footer-social a svg {
+  display: block;
 }
 
 .footer-copy {
   font-size: 0.78rem;
-  color: rgba(255, 200, 220, 0.28);
+  color: #fff;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
 }
 
 .footer-hearts {
@@ -1111,6 +1170,7 @@ footer {
   letter-spacing: 4px;
   font-size: 0.82rem;
   animation: hpulse 2s ease-in-out infinite;
+  margin-left: auto;
 }
 
 @keyframes hpulse {

@@ -13,7 +13,7 @@ export default function CTA({ onOpenAuth }) {
             onClick={() => onOpenAuth?.("register")}
             type="button"
           >
-            Create Free Account ✦
+            Create Free Account 🎉
           </button>
           <button
             className="btn-hero btn-hero-ghost"

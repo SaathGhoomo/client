@@ -58,7 +58,7 @@ export default function Features() {
           </div>
 
           <div className="feat-card gc">
-            <div className="feat-icon">💸</div>
+            <div className="feat-icon">�</div>
             <div>
               <h3>Transparent Pricing</h3>
               <p>
