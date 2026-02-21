@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import logoUrl from "../assets/saathghoomo-logo.svg";
 
 function smoothScroll(id) {
   const el = document.getElementById(id);
@@ -102,7 +103,7 @@ export default function Navbar({ onOpenAuth }) {
             role="button"
             tabIndex={0}
           >
-            <div className="nav-logo-mark">✦</div>
+            <img className="nav-logo-icon" src={logoUrl} alt="SaathGhoomo" />
             Saath <em>Ghoomo</em>
           </a>
 

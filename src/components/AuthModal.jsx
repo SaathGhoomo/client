@@ -161,7 +161,7 @@ export default function AuthModal({
         <div className="card-front-wrap">
           <div className="arc-ring" />
           <div className="auth-card">
-            <div className="auth-title">✦ Saath Ghoomo</div>
+            <div className="auth-title">Saath Ghoomo</div>
             <div className="auth-sub">Find Compatibility Partner · Join</div>
 
             <button className="btn-google" onClick={onGoogle} type="button">
@@ -260,7 +260,7 @@ export default function AuthModal({
         <div className="card-back-wrap">
           <div className="arc-ring" />
           <div className="auth-card">
-            <div className="auth-title">✦ Welcome Back</div>
+            <div className="auth-title">Welcome Back</div>
             <div className="auth-sub">Find Compatibility Partner · Sign In</div>
 
             <button className="btn-google" onClick={onGoogle} type="button">
