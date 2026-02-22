@@ -1,4 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+import { useAuth } from "../context/AuthContext.jsx";
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
 
 function flash(setMsg, msg, type) {
   setMsg({ msg, type });
@@ -16,6 +20,14 @@ function getInitials(name) {
   );
 }
 
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isStrongPassword(pass) {
+  return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(pass);
+}
+
 export default function AuthModal({
   open,
   mode,
@@ -25,18 +37,12 @@ export default function AuthModal({
   onBurst,
   flipTargetRef,
 }) {
+  const { login, register, googleLogin } = useAuth();
+
   const overlayRef = useRef(null);
 
   const [registerMsg, setRegisterMsg] = useState(null);
   const [loginMsg, setLoginMsg] = useState(null);
-
-  const users = useMemo(() => {
-    try {
-      return JSON.parse(localStorage.getItem("sgUsers") || "[]");
-    } catch {
-      return [];
-    }
-  }, [open]);
 
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
@@ -45,6 +51,23 @@ export default function AuthModal({
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPass, setLoginPass] = useState("");
+  const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  function flipToLogin() {
+    if (!isFlipped) {
+      document.getElementById("flipWrapper").classList.add("flipped");
+      setIsFlipped(true);
+    }
+  }
+
+  function flipToRegister() {
+    if (isFlipped) {
+      document.getElementById("flipWrapper").classList.remove("flipped");
+      setIsFlipped(false);
+    }
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -69,26 +92,44 @@ export default function AuthModal({
     }
   }, [open]);
 
-  const isFlipped = mode === "login";
-
   const onOverlayClick = (e) => {
     if (e.target === overlayRef.current) onClose?.();
   };
 
   const onGoogle = () => {
-    flash(
-      setRegisterMsg,
-      "Google auth coming soon — backend not connected yet.",
-      "error"
-    );
-    flash(
-      setLoginMsg,
-      "Google auth coming soon — backend not connected yet.",
-      "error"
-    );
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      flash(setRegisterMsg, "VITE_GOOGLE_CLIENT_ID is not set.", "error");
+      flash(setLoginMsg, "VITE_GOOGLE_CLIENT_ID is not set.", "error");
+      return;
+    }
+
+    if (!window.google?.accounts?.id) {
+      flash(setRegisterMsg, "Google script not loaded. Restart Vite.", "error");
+      flash(setLoginMsg, "Google script not loaded. Restart Vite.", "error");
+      return;
+    }
+
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: async (resp) => {
+        try {
+          const res = await googleLogin({ idToken: resp.credential });
+          const name = res?.user?.name || "User";
+          onLogin?.({ name, initials: getInitials(name) });
+          onClose?.();
+        } catch (e) {
+          const apiMsg = e?.response?.data?.message;
+          flash(setRegisterMsg, apiMsg || "Google sign-in failed.", "error");
+          flash(setLoginMsg, apiMsg || "Google sign-in failed.", "error");
+        }
+      },
+    });
+
+    window.google.accounts.id.prompt();
   };
 
-  const registerUser = () => {
+  const registerUser = async () => {
     const name = regName.trim();
     const email = regEmail.trim();
     const pass = regPass;
@@ -98,47 +139,50 @@ export default function AuthModal({
       return;
     }
 
-    if (users.find((u) => u.email === email)) {
-      flash(setRegisterMsg, "Email already registered.", "error");
+    if (!isValidEmail(email)) {
+      flash(setRegisterMsg, "Please provide a valid email.", "error");
       return;
     }
 
-    const nextUsers = [
-      ...users,
-      {
-        name,
-        email,
-        pass,
-        gender: regGender,
-        coins: 100,
-      },
-    ];
+    if (pass.length < 6 || !isStrongPassword(pass)) {
+      flash(
+        setRegisterMsg,
+        "Password must be at least 6 characters and include uppercase, lowercase and a number.",
+        "error"
+      );
+      return;
+    }
 
-    localStorage.setItem("sgUsers", JSON.stringify(nextUsers));
-    flash(setRegisterMsg, "✓ Account created! Signing you in…", "success");
-
-    window.setTimeout(() => {
+    try {
+      await register({ name, email, password: pass });
+      flash(setRegisterMsg, "✓ Account created!", "success");
       onBurst?.();
       onModeChange?.("login");
-    }, 1100);
+    } catch (e) {
+      const apiMsg = e?.response?.data?.message;
+      const firstValidationMsg = e?.response?.data?.errors?.[0]?.msg;
+      flash(
+        setRegisterMsg,
+        firstValidationMsg || apiMsg || "Registration failed.",
+        "error"
+      );
+    }
   };
 
-  const loginUser = () => {
+  const loginUser = async () => {
     const email = loginEmail.trim();
     const pass = loginPass;
 
-    const user = users.find((u) => u.email === email && u.pass === pass);
-    if (!user) {
-      flash(setLoginMsg, "Incorrect email or password.", "error");
-      return;
+    try {
+      const res = await login({ email, password: pass });
+      const name = res?.user?.name || "User";
+      onLogin?.({ name, initials: getInitials(name) });
+      onClose?.();
+    } catch (e) {
+      const apiMsg = e?.response?.data?.message;
+      const firstValidationMsg = e?.response?.data?.errors?.[0]?.msg;
+      flash(setLoginMsg, firstValidationMsg || apiMsg || "Login failed.", "error");
     }
-
-    localStorage.setItem("accessToken", `local_${Date.now()}`);
-    localStorage.setItem("userName", user.name);
-    localStorage.setItem("sgLoggedUser", JSON.stringify(user));
-
-    onLogin?.({ name: user.name, initials: getInitials(user.name) });
-    onClose?.();
   };
 
   return (
@@ -155,8 +199,9 @@ export default function AuthModal({
       </button>
 
       <div
+        id="flipWrapper"
         ref={flipTargetRef}
-        className={`flip-wrapper ${isFlipped ? "flipped" : ""}`}
+        className="flip-wrapper"
       >
         <div className="card-front-wrap">
           <div className="arc-ring" />
@@ -165,24 +210,7 @@ export default function AuthModal({
             <div className="auth-sub">Find Compatibility Partner · Join</div>
 
             <button className="btn-google" onClick={onGoogle} type="button">
-              <svg width="17" height="17" viewBox="0 0 18 18">
-                <path
-                  fill="#4285F4"
-                  d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z"
-                />
-              </svg>
+              <FcGoogle size={18} style={{ marginRight: 8 }} />
               Continue with Google
             </button>
 
@@ -212,12 +240,31 @@ export default function AuthModal({
 
             <div className="auth-field">
               <label>Password</label>
-              <input
-                type="password"
-                value={regPass}
-                onChange={(e) => setRegPass(e.target.value)}
-                placeholder="Create a password"
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showRegPassword ? 'text' : 'password'}
+                  value={regPass}
+                  onChange={(e) => setRegPass(e.target.value)}
+                  placeholder="Create a password"
+                  style={{ paddingRight: '40px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRegPassword(!showRegPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#666'
+                  }}
+                >
+                  {showRegPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </button>
+              </div>
             </div>
 
             <div className="auth-field">
@@ -245,6 +292,7 @@ export default function AuthModal({
               <span
                 className="auth-link"
                 onClick={() => {
+                  flipToLogin();
                   onBurst?.();
                   onModeChange?.("login");
                 }}
@@ -253,6 +301,37 @@ export default function AuthModal({
               >
                 Sign In
               </span>
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  flipToLogin();
+                  onBurst?.();
+                  onModeChange?.("login");
+                }}
+                style={{
+                  background: 'none',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: 'rgba(255,255,255,0.7)',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(255,255,255,0.1)';
+                  e.target.style.color = 'rgba(255,255,255,0.9)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'none';
+                  e.target.style.color = 'rgba(255,255,255,0.7)';
+                }}
+              >
+                Already have an account? Sign In →
+              </button>
             </div>
           </div>
         </div>
@@ -264,24 +343,7 @@ export default function AuthModal({
             <div className="auth-sub">Find Compatibility Partner · Sign In</div>
 
             <button className="btn-google" onClick={onGoogle} type="button">
-              <svg width="17" height="17" viewBox="0 0 18 18">
-                <path
-                  fill="#4285F4"
-                  d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z"
-                />
-              </svg>
+              <FcGoogle size={18} style={{ marginRight: 8 }} />
               Continue with Google
             </button>
 
@@ -301,12 +363,31 @@ export default function AuthModal({
 
             <div className="auth-field">
               <label>Password</label>
-              <input
-                type="password"
-                value={loginPass}
-                onChange={(e) => setLoginPass(e.target.value)}
-                placeholder="Your password"
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showLoginPassword ? 'text' : 'password'}
+                  value={loginPass}
+                  onChange={(e) => setLoginPass(e.target.value)}
+                  placeholder="Your password"
+                  style={{ paddingRight: '40px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#666'
+                  }}
+                >
+                  {showLoginPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+                </button>
+              </div>
             </div>
 
             <button className="btn-auth" onClick={loginUser} type="button">
@@ -322,6 +403,7 @@ export default function AuthModal({
               <span
                 className="auth-link"
                 onClick={() => {
+                  flipToRegister();
                   onBurst?.();
                   onModeChange?.("register");
                 }}
@@ -330,6 +412,37 @@ export default function AuthModal({
               >
                 Create account
               </span>
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  flipToRegister();
+                  onBurst?.();
+                  onModeChange?.("register");
+                }}
+                style={{
+                  background: 'none',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  color: 'rgba(255,255,255,0.7)',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '0.85rem',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(255,255,255,0.1)';
+                  e.target.style.color = 'rgba(255,255,255,0.9)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'none';
+                  e.target.style.color = 'rgba(255,255,255,0.7)';
+                }}
+              >
+                New here? Create Account →
+              </button>
             </div>
           </div>
         </div>

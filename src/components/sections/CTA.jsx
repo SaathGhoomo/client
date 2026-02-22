@@ -1,3 +1,5 @@
+import { FaUserPlus, FaSignInAlt } from 'react-icons/fa';
+
 export default function CTA({ onOpenAuth }) {
   return (
     <section id="cta">
@@ -13,13 +15,15 @@ export default function CTA({ onOpenAuth }) {
             onClick={() => onOpenAuth?.("register")}
             type="button"
           >
-            Create Free Account 🎉
+            <FaUserPlus size={16} style={{ marginRight: 8 }} />
+            Create Free Account
           </button>
           <button
             className="btn-hero btn-hero-ghost"
             onClick={() => onOpenAuth?.("login")}
             type="button"
           >
+            <FaSignInAlt size={16} style={{ marginRight: 8 }} />
             Sign In
           </button>
         </div>

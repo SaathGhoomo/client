@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import logoUrl from "../assets/saathghoomo-logo.svg";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function smoothScroll(id) {
   const el = document.getElementById(id);
@@ -18,58 +20,21 @@ function getInitials(name) {
 }
 
 export default function Navbar({ onOpenAuth }) {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuth();
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [ddOpen, setDdOpen] = useState(false);
 
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("User");
+  const loggedIn = isAuthenticated;
+  const userName = user?.name || "User";
 
   const initials = useMemo(() => getInitials(userName), [userName]);
   const firstName = useMemo(() => userName.split(" ")[0] || "User", [userName]);
 
   const wrapRef = useRef(null);
 
-  const readAuth = () => {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      const name = localStorage.getItem("userName") || "User";
-      setLoggedIn(true);
-      setUserName(name);
-      return;
-    }
-
-    const sg = localStorage.getItem("sgLoggedUser");
-    if (sg) {
-      try {
-        const u = JSON.parse(sg);
-        setLoggedIn(true);
-        setUserName(u?.name || "User");
-        return;
-      } catch {
-        // ignore
-      }
-    }
-
-    setLoggedIn(false);
-    setUserName("User");
-  };
-
-  useEffect(() => {
-    readAuth();
-
-    const onStorage = (e) => {
-      if (
-        e.key === "accessToken" ||
-        e.key === "userName" ||
-        e.key === "sgLoggedUser"
-      ) {
-        readAuth();
-      }
-    };
-
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     const onDocClick = (e) => {
@@ -82,12 +47,7 @@ export default function Navbar({ onOpenAuth }) {
   }, []);
 
   const doLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("sgLoggedUser");
-    setLoggedIn(false);
-    setUserName("User");
+    logout();
     setDdOpen(false);
   };
 
@@ -99,7 +59,13 @@ export default function Navbar({ onOpenAuth }) {
         <div className="nav-row">
           <a
             className="nav-logo"
-            onClick={() => smoothScroll("hero")}
+            onClick={() => {
+              if (window.location.pathname === "/") {
+                smoothScroll("hero");
+              } else {
+                navigate("/");
+              }
+            }}
             role="button"
             tabIndex={0}
           >
@@ -138,14 +104,14 @@ export default function Navbar({ onOpenAuth }) {
             <div className="nav-auth" id="navAuthOut">
               <button
                 className="btn-ghost-nav"
-                onClick={() => onOpenAuth?.("login")}
+                onClick={() => navigate("/signin")}
                 type="button"
               >
                 Login
               </button>
               <button
                 className="btn-primary-nav"
-                onClick={() => onOpenAuth?.("register")}
+                onClick={() => navigate("/signup")}
                 type="button"
               >
                 Get Started
@@ -190,7 +156,14 @@ export default function Navbar({ onOpenAuth }) {
                 <button className="nav-dd-item" type="button" onClick={() => setDdOpen(false)}>
                   💰 &nbsp;Wallet
                 </button>
-                <button className="nav-dd-item" type="button" onClick={() => setDdOpen(false)}>
+                <button
+                  className="nav-dd-item"
+                  type="button"
+                  onClick={() => {
+                    setDdOpen(false);
+                    navigate("/profile");
+                  }}
+                >
                   🪪 &nbsp;Profile
                 </button>
                 <div className="nav-dd-sep" />
@@ -272,8 +245,8 @@ export default function Navbar({ onOpenAuth }) {
               <button
                 className="btn-ghost-nav"
                 onClick={() => {
-                  onOpenAuth?.("login");
                   closeMobile();
+                  navigate("/signin");
                 }}
                 type="button"
               >
@@ -282,8 +255,8 @@ export default function Navbar({ onOpenAuth }) {
               <button
                 className="btn-primary-nav"
                 onClick={() => {
-                  onOpenAuth?.("register");
                   closeMobile();
+                  navigate("/signup");
                 }}
                 type="button"
               >
@@ -309,7 +282,14 @@ export default function Navbar({ onOpenAuth }) {
               <button className="nav-mobile-link" type="button" onClick={closeMobile}>
                 💰 &nbsp;Wallet
               </button>
-              <button className="nav-mobile-link" type="button" onClick={closeMobile}>
+              <button
+                className="nav-mobile-link"
+                type="button"
+                onClick={() => {
+                  closeMobile();
+                  navigate("/profile");
+                }}
+              >
                 🪪 &nbsp;Profile
               </button>
               <button

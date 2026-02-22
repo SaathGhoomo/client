@@ -1,10 +1,12 @@
+import { FaGlobe, FaRocket } from 'react-icons/fa';
+
 export default function Hero({ onOpenAuth }) {
   return (
     <section className="hero" id="hero">
       <div className="hero-inner">
         <div className="hero-badge">
           <div className="badge-dot" />
-          🌍 Now live across 12 cities
+          <FaGlobe size={14} style={{ marginRight: 6 }} /> Now live across 12 cities
         </div>
 
         <h1 className="hero-title">
@@ -23,7 +25,8 @@ export default function Hero({ onOpenAuth }) {
             onClick={() => onOpenAuth?.("register")}
             type="button"
           >
-            Start Your Journey 🚀
+            <FaRocket size={16} style={{ marginRight: 8 }} />
+            Start Your Journey
           </button>
           <button
             className="btn-hero btn-hero-ghost"

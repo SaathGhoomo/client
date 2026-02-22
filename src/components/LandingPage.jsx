@@ -1,4 +1,6 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FaRocket, FaGlobe } from 'react-icons/fa';
 
 import Navbar from "./Navbar";
 import Footer from "./Footer";
@@ -12,18 +14,9 @@ import SaathCoins from "./sections/SaathCoins";
 import Refer from "./sections/Refer";
 import CTA from "./sections/CTA";
 
-function getInitials(name) {
-  return (
-    name
-      .split(" ")
-      .map((n) => n?.[0] || "")
-      .join("")
-      .toUpperCase()
-      .slice(0, 2) || "U"
-  );
-}
-
 export default function LandingPage() {
+  const navigate = useNavigate();
+
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState("register");
 
@@ -31,21 +24,18 @@ export default function LandingPage() {
   const bgRef = useRef(null);
 
   const openAuth = (mode) => {
-    setAuthMode(mode);
-    setAuthOpen(true);
+    if (mode === "login") {
+      navigate("/signin");
+      return;
+    }
+
+    navigate("/signup");
   };
 
   const closeAuth = () => setAuthOpen(false);
 
   const burst = () => {
     bgRef.current?.burst?.();
-  };
-
-  const onLogin = ({ name }) => {
-    localStorage.setItem("accessToken", `local_${Date.now()}`);
-    localStorage.setItem("userName", name);
-    localStorage.setItem("sgLoggedUser", JSON.stringify({ name }));
-    getInitials(name);
   };
 
   return (
@@ -80,7 +70,7 @@ export default function LandingPage() {
         open={authOpen}
         mode={authMode}
         onClose={closeAuth}
-        onLogin={onLogin}
+        onLogin={() => {}}
         onModeChange={setAuthMode}
         onBurst={burst}
         flipTargetRef={flipTargetRef}

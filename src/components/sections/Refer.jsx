@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaGift } from 'react-icons/fa';
 
 export default function Refer({ onOpenAuth }) {
   const [copied, setCopied] = useState(false);
@@ -38,7 +39,8 @@ export default function Refer({ onOpenAuth }) {
             onClick={() => onOpenAuth?.("register")}
             type="button"
           >
-            Claim Your Code 🎁
+            <FaGift size={16} style={{ marginRight: 8 }} />
+            Claim Your Code
           </button>
         </div>
       </div>
