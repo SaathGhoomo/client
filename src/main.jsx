@@ -6,7 +6,7 @@ import { Toaster } from 'react-hot-toast';
 import './tailwind.css';
 import './theme.css';
 import App from './App.jsx';
-import { AuthProvider } from './context/AuthContext.jsx';
+import { AuthProvider } from './context/AuthContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <AuthProvider>

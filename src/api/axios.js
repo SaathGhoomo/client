@@ -2,8 +2,7 @@ import axios from "axios";
 
 const STORAGE_TOKEN_KEY = "accessToken";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
 const api = axios.create({
   baseURL: API_BASE_URL || "",
@@ -14,13 +13,13 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    if (!API_BASE_URL) {
-      return Promise.reject(
-        new Error(
-          "API base URL is not set. Create client/client/.env with VITE_API_BASE_URL=http://localhost:8000/api (or VITE_API_URL) and restart Vite."
-        )
-      );
-    }
+    console.log('Axios request:', {
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: `${config.baseURL}${config.url}`,
+      method: config.method,
+      hasToken: !!localStorage.getItem(STORAGE_TOKEN_KEY)
+    });
 
     const token = localStorage.getItem(STORAGE_TOKEN_KEY);
     if (token) {

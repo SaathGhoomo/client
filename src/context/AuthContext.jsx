@@ -16,8 +16,8 @@ export function AuthProvider({ children }) {
     setToken(null);
     setUser(null);
 
-    if (window.location.pathname !== '/') {
-      window.location.assign('/');
+    if (window.location.pathname !== '/signin') {
+      window.location.assign('/signin');
     }
   }, []);
 
@@ -29,7 +29,7 @@ export function AuthProvider({ children }) {
     }
 
     try {
-      const res = await api.get('/auth/profile');
+      const res = await api.get('/users/me');
       setUser(res.data?.user || null);
     } catch (e) {
       localStorage.removeItem(STORAGE_TOKEN_KEY);
@@ -46,9 +46,23 @@ export function AuthProvider({ children }) {
     }
   }, [token]);
 
+  const fetchCurrentUser = useCallback(async () => {
+    if (!token) {
+      return null;
+    }
+
+    try {
+      const res = await api.get('/users/me');
+      return res.data?.user || null;
+    } catch (e) {
+      console.error('Fetch current user error:', e);
+      return null;
+    }
+  }, [token]);
+
   useEffect(() => {
     fetchProfile();
-  }, [fetchProfile]);
+  }, [token]);
 
   const register = useCallback(async (payload) => {
     const res = await api.post('/auth/register', payload);
@@ -89,22 +103,40 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(async (payload) => {
-    const res = await api.post('/auth/login', payload);
-    const nextToken = res.data?.token;
-    if (nextToken) {
-      localStorage.setItem(STORAGE_TOKEN_KEY, nextToken);
-      setToken(nextToken);
+    console.log('AuthContext login payload:', payload);
+    console.log('API_BASE_URL:', import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL);
+    
+    try {
+      const res = await api.post('/auth/login', payload);
+      console.log('AuthContext login response:', res.data);
+      const nextToken = res.data?.token;
+      if (nextToken) {
+        localStorage.setItem(STORAGE_TOKEN_KEY, nextToken);
+        setToken(nextToken);
 
-      try {
-        const profileRes = await api.get('/auth/profile');
-        setUser(profileRes.data?.user || res.data?.user || null);
-      } catch {
-        setUser(res.data?.user || null);
+        try {
+          const profileRes = await api.get('/users/me');
+          setUser(profileRes.data?.user || res.data?.user || null);
+        } catch {
+          setUser(res.data?.user || null);
+        }
+
+        toast.success('Welcome back');
       }
-
-      toast.success('Welcome back');
+      return res.data;
+    } catch (error) {
+      console.error('Login error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        config: {
+          url: error.config?.url,
+          baseURL: error.config?.baseURL,
+          method: error.config?.method
+        }
+      });
+      throw error;
     }
-    return res.data;
   }, []);
 
   const value = useMemo(
@@ -116,10 +148,12 @@ export function AuthProvider({ children }) {
       register,
       login,
       googleLogin,
+      fetchProfile,
+      fetchCurrentUser,
       logout,
       refreshProfile: fetchProfile,
     }),
-    [token, user, loading, register, login, googleLogin, logout, fetchProfile]
+    [token, user, loading, fetchProfile, fetchCurrentUser, register, login, googleLogin, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

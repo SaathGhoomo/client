@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../context/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
@@ -60,10 +60,12 @@ export default function SignIn() {
 
   const onSubmit = async (values) => {
     try {
+      console.log('Submitting login with values:', values);
       await login(values);
       const to = location.state?.from || '/dashboard';
       navigate(to, { replace: true });
     } catch (e) {
+      console.log('Login error:', e.response?.data);
       const apiMsg = e?.response?.data?.message;
       const firstValidationMsg = e?.response?.data?.errors?.[0]?.msg;
       toast.error(firstValidationMsg || apiMsg || 'Login failed');
@@ -88,6 +90,7 @@ export default function SignIn() {
               <div className="auth-field">
                 <label>Email</label>
                 <input
+                  name="email"
                   type="email"
                   placeholder="you@email.com"
                   {...register('email', {
@@ -109,6 +112,7 @@ export default function SignIn() {
                 <label>Password</label>
                 <div style={{ position: 'relative' }}>
                   <input
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Your password"
                     {...register('password', {
