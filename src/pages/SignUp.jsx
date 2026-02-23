@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../context/AuthContext';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
 
@@ -86,6 +86,7 @@ export default function SignUp() {
               <div className="auth-field">
                 <label>Full Name</label>
                 <input
+                  name="name"
                   type="text"
                   placeholder="Your name"
                   {...register('name', {
@@ -103,6 +104,7 @@ export default function SignUp() {
               <div className="auth-field">
                 <label>Email</label>
                 <input
+                  name="email"
                   type="email"
                   placeholder="you@email.com"
                   {...register('email', {
@@ -124,6 +126,7 @@ export default function SignUp() {
                 <label>Password</label>
                 <div style={{ position: 'relative' }}>
                   <input
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Create a password"
                     {...register('password', {

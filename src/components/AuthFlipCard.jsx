@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { FcGoogle } from 'react-icons/fc';
@@ -28,21 +28,16 @@ function isStrongPassword(pass) {
   return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(pass);
 }
 
-export default function AuthModal({
-  open,
-  mode,
-  onClose,
-  onLogin,
-  onModeChange,
-  onBurst,
-  flipTargetRef,
-}) {
-  const { login, register, googleLogin } = useAuth();
-
-  const overlayRef = useRef(null);
+export default function AuthFlipCard() {
+  const { login, register, googleLogin, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const flipTargetRef = useRef(null);
 
   const [registerMsg, setRegisterMsg] = useState(null);
   const [loginMsg, setLoginMsg] = useState(null);
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [currentMode, setCurrentMode] = useState('signin');
 
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
@@ -53,50 +48,39 @@ export default function AuthModal({
   const [loginPass, setLoginPass] = useState("");
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
 
-  function flipToLogin() {
-    if (!isFlipped) {
-      document.getElementById("flipWrapper").classList.add("flipped");
-      setIsFlipped(true);
-    }
-  }
-
-  function flipToRegister() {
-    if (isFlipped) {
-      document.getElementById("flipWrapper").classList.remove("flipped");
+  // Set initial mode based on URL
+  useEffect(() => {
+    const path = location.pathname;
+    if (path === '/signup') {
       setIsFlipped(false);
+      setCurrentMode('signup');
+    } else {
+      setIsFlipped(true);
+      setCurrentMode('signin');
     }
-  }
+  }, [location.pathname]);
 
   useEffect(() => {
-    if (!open) return;
-
-    const onKeyDown = (e) => {
-      if (e.key === "Escape") onClose?.();
-    };
-
-    document.addEventListener("keydown", onKeyDown);
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = "";
-    };
-  }, [open, onClose]);
-
-  useEffect(() => {
-    if (!open) {
-      setRegisterMsg(null);
-      setLoginMsg(null);
+    if (isAuthenticated) {
+      const to = location.state?.from || '/dashboard';
+      navigate(to, { replace: true });
     }
-  }, [open]);
+  }, [isAuthenticated, navigate, location.state]);
 
-  const onOverlayClick = (e) => {
-    if (e.target === overlayRef.current) onClose?.();
+  const flipToLogin = () => {
+    setIsFlipped(true);
+    setCurrentMode('signin');
+    navigate('/signin', { replace: true });
   };
 
-  const onGoogle = () => {
+  const flipToSignup = () => {
+    setIsFlipped(false);
+    setCurrentMode('signup');
+    navigate('/signup', { replace: true });
+  };
+
+  const onGoogle = async () => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId) {
       flash(setRegisterMsg, "VITE_GOOGLE_CLIENT_ID is not set.", "error");
@@ -116,8 +100,8 @@ export default function AuthModal({
         try {
           const res = await googleLogin({ idToken: resp.credential });
           const name = res?.user?.name || "User";
-          onLogin?.({ name, initials: getInitials(name) });
-          onClose?.();
+          const to = location.state?.from || '/dashboard';
+          navigate(to, { replace: true });
         } catch (e) {
           const apiMsg = e?.response?.data?.message;
           flash(setRegisterMsg, apiMsg || "Google sign-in failed.", "error");
@@ -156,8 +140,9 @@ export default function AuthModal({
     try {
       await register({ name, email, password: pass });
       flash(setRegisterMsg, "✓ Account created!", "success");
-      onBurst?.();
-      onModeChange?.("login");
+      setTimeout(() => {
+        flipToLogin();
+      }, 1500);
     } catch (e) {
       const apiMsg = e?.response?.data?.message;
       const firstValidationMsg = e?.response?.data?.errors?.[0]?.msg;
@@ -173,11 +158,16 @@ export default function AuthModal({
     const email = loginEmail.trim();
     const pass = loginPass;
 
+    if (!email || !pass) {
+      flash(setLoginMsg, "Please fill all fields.", "error");
+      return;
+    }
+
     try {
       const res = await login({ email, password: pass });
       const name = res?.user?.name || "User";
-      onLogin?.({ name, initials: getInitials(name) });
-      onClose?.();
+      const to = location.state?.from || '/dashboard';
+      navigate(to, { replace: true });
     } catch (e) {
       const apiMsg = e?.response?.data?.message;
       const firstValidationMsg = e?.response?.data?.errors?.[0]?.msg;
@@ -186,28 +176,18 @@ export default function AuthModal({
   };
 
   return (
-    <div
-      ref={overlayRef}
-      className={`auth-overlay ${open ? "open" : ""}`}
-      onMouseDown={onOverlayClick}
-      role="dialog"
-      aria-modal="true"
-      aria-hidden={!open}
-    >
-      <button className="auth-close" onClick={onClose} type="button">
-        ✕
-      </button>
-
+    <div className="auth-overlay open" role="main" aria-modal="false">
       <div
         id="flipWrapper"
         ref={flipTargetRef}
-        className="flip-wrapper"
+        className={`flip-wrapper ${isFlipped ? 'flipped' : ''}`}
       >
+        {/* Front - Sign Up */}
         <div className="card-front-wrap">
           <div className="arc-ring" />
           <div className="auth-card">
             <div className="auth-title">Saath Ghoomo</div>
-            <div className="auth-sub">Find Compatibility Partner · Join</div>
+            <div className="auth-sub">Create account · Start exploring</div>
 
             <button className="btn-google" onClick={onGoogle} type="button">
               <FcGoogle size={18} style={{ marginRight: 8 }} />
@@ -287,30 +267,10 @@ export default function AuthModal({
               <div className={`auth-msg ${registerMsg.type}`}>{registerMsg.msg}</div>
             )}
 
-            <div className="auth-switch">
-              Already have an account?{" "}
-              <span
-                className="auth-link"
-                onClick={() => {
-                  flipToLogin();
-                  onBurst?.();
-                  onModeChange?.("login");
-                }}
-                role="button"
-                tabIndex={0}
-              >
-                Sign In
-              </span>
-            </div>
-
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
               <button
                 type="button"
-                onClick={() => {
-                  flipToLogin();
-                  onBurst?.();
-                  onModeChange?.("login");
-                }}
+                onClick={flipToLogin}
                 style={{
                   background: 'none',
                   border: '1px solid rgba(255,255,255,0.2)',
@@ -336,6 +296,7 @@ export default function AuthModal({
           </div>
         </div>
 
+        {/* Back - Sign In */}
         <div className="card-back-wrap">
           <div className="arc-ring" />
           <div className="auth-card">
@@ -398,30 +359,10 @@ export default function AuthModal({
               <div className={`auth-msg ${loginMsg.type}`}>{loginMsg.msg}</div>
             )}
 
-            <div className="auth-switch">
-              New here?{" "}
-              <span
-                className="auth-link"
-                onClick={() => {
-                  flipToRegister();
-                  onBurst?.();
-                  onModeChange?.("register");
-                }}
-                role="button"
-                tabIndex={0}
-              >
-                Create account
-              </span>
-            </div>
-
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
               <button
                 type="button"
-                onClick={() => {
-                  flipToRegister();
-                  onBurst?.();
-                  onModeChange?.("register");
-                }}
+                onClick={flipToSignup}
                 style={{
                   background: 'none',
                   border: '1px solid rgba(255,255,255,0.2)',
