@@ -321,40 +321,6 @@ export default function AuthFlipCard() {
                 placeholder="you@email.com"
               />
             </div>
-
-            <div className="auth-field">
-              <label>Password</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type={showLoginPassword ? 'text' : 'password'}
-                  value={loginPass}
-                  onChange={(e) => setLoginPass(e.target.value)}
-                  placeholder="Your password"
-                  style={{ paddingRight: '40px' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowLoginPassword(!showLoginPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: '#666'
-                  }}
-                >
-                  {showLoginPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            <button className="btn-auth" onClick={loginUser} type="button">
-              Sign In
-            </button>
-
             {loginMsg && (
               <div className={`auth-msg ${loginMsg.type}`}>{loginMsg.msg}</div>
             )}

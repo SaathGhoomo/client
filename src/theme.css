@@ -8,12 +8,80 @@
   --hot: #e91e8c;
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* ============================= */
+/* GLOBAL RESET + SCROLL FIX */
+/* ============================= */
+
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+
+  /* GPU Flicker Fix */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+
+  /* IMPORTANT: Change this to your theme color */
+  background-color: #0f0f0f; 
+
+  scroll-behavior: smooth;
+
+  /* Force GPU Rendering */
+  transform: translateZ(0);
+}
+
+/* ============================= */
+/* SECTION FIX */
+/* ============================= */
+
+section {
+  width: 100%;
+  min-height: 100vh;   /* use min-height instead of height */
+  position: relative;
+}
+
+/* ============================= */
+/* THREE.JS / CANVAS FIX */
+/* ============================= */
+
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+/* ============================= */
+/* HERO SECTION FIX */
+/* ============================= */
+
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* ============================= */
+/* REMOVE WHITE GAP BETWEEN DIVS */
+/* ============================= */
+
+div, section {
+  background-clip: padding-box;
+}
+
+/* ============================= */
+/* FIX MOBILE 100VH BUG */
+/* ============================= */
+
+@supports (-webkit-touch-callout: none) {
+  section {
+    min-height: -webkit-fill-available;
+  }
 }
 
 html {
