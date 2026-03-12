@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logoUrl from "../assets/saathghoomo-logo.svg";
+import logoUrl from "../assets/SaathGhoomo-Logo.svg";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell.jsx";
 
