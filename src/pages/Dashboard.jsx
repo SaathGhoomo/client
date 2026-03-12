@@ -160,9 +160,47 @@ export default function Dashboard() {
               {activeSection === 'bookings' && (
                 <div>
                   <h3 className="s-tag" style={{ marginBottom: 12 }}>My Bookings</h3>
-                  <p className="s-sub" style={{ marginBottom: 0 }}>No bookings yet.</p>
-                  <button type="button" className="btn-primary-nav" style={{ marginTop: 16 }} onClick={() => navigate('/my-bookings')}>
+                  <p className="s-sub" style={{ marginBottom: 16 }}>
+                    View and manage your travel bookings and conversations.
+                  </p>
+                  <button type="button" className="btn-primary-nav" onClick={() => navigate('/my-bookings')}>
                     📅 My Bookings
+                  </button>
+                </div>
+              )}
+
+              {activeSection === 'partners' && (
+                <div>
+                  <h3 className="s-tag" style={{ marginBottom: 12 }}>Browse Partners</h3>
+                  <p className="s-sub" style={{ marginBottom: 16 }}>
+                    Find and connect with travel partners for your journeys.
+                  </p>
+                  <button type="button" className="btn-primary-nav" onClick={() => navigate('/partners')}>
+                    👥 Browse Partners
+                  </button>
+                </div>
+              )}
+
+              {activeSection === 'apply-partner' && user?.role === 'user' && (
+                <div>
+                  <h3 className="s-tag" style={{ marginBottom: 12 }}>Apply as Partner</h3>
+                  <p className="s-sub" style={{ marginBottom: 16 }}>
+                    Become a travel partner and start earning.
+                  </p>
+                  <button type="button" className="btn-primary-nav" onClick={() => navigate('/apply-partner')}>
+                    🤝 Apply Now
+                  </button>
+                </div>
+              )}
+
+              {activeSection === 'partner' && user?.role === 'partner' && (
+                <div>
+                  <h3 className="s-tag" style={{ marginBottom: 12 }}>Partner Panel</h3>
+                  <p className="s-sub" style={{ marginBottom: 16 }}>
+                    Manage your partner profile and bookings.
+                  </p>
+                  <button type="button" className="btn-primary-nav" onClick={() => navigate('/partner/bookings')}>
+                    � Partner Bookings
                   </button>
                 </div>
               )}
@@ -219,7 +257,12 @@ export default function Dashboard() {
               {activeSection === 'admin' && user?.role === 'admin' && (
                 <div>
                   <h3 className="s-tag" style={{ marginBottom: 12 }}>Admin Panel</h3>
-                  <p className="s-sub" style={{ marginBottom: 0 }}>Admin controls coming soon.</p>
+                  <p className="s-sub" style={{ marginBottom: 16 }}>
+                    Manage users, partners, and system analytics.
+                  </p>
+                  <button type="button" className="btn-primary-nav" onClick={() => navigate('/admin/dashboard')}>
+                    🛠️ Admin Dashboard
+                  </button>
                 </div>
               )}
 

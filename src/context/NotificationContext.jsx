@@ -99,7 +99,11 @@ export const NotificationProvider = ({ children }) => {
   // Initialize socket connection
   useEffect(() => {
     // Disable Socket.IO in production (Vercel serverless)
-    if (import.meta.env.MODE === 'production') {
+    const isProduction = import.meta.env.MODE === 'production' || 
+                       import.meta.env.VITE_VERCEL_ENV === 'production' ||
+                       window.location.hostname.includes('vercel.app');
+    
+    if (isProduction) {
       console.log('Socket.IO disabled in production (serverless environment)');
       return;
     }

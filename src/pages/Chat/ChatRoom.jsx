@@ -22,7 +22,11 @@ const ChatRoom = () => {
   const inputRef = useRef(null);
 
   // Check if in production and show message
-  if (import.meta.env.MODE === 'production') {
+  const isProduction = import.meta.env.MODE === 'production' || 
+                     import.meta.env.VITE_VERCEL_ENV === 'production' ||
+                     window.location.hostname.includes('vercel.app');
+  
+  if (isProduction) {
     return (
       <div style={{ 
         display: 'flex', 
@@ -61,7 +65,11 @@ const ChatRoom = () => {
   // Initialize socket connection
   useEffect(() => {
     // Disable Socket.IO in production (Vercel serverless)
-    if (import.meta.env.MODE === 'production') {
+    const isProduction = import.meta.env.MODE === 'production' || 
+                       import.meta.env.VITE_VERCEL_ENV === 'production' ||
+                       window.location.hostname.includes('vercel.app');
+    
+    if (isProduction) {
       console.log('Socket.IO disabled in production (serverless environment)');
       toast.error('Real-time chat is not available in production. Please use a different hosting platform for real-time features.');
       return;
