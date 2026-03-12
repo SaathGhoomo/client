@@ -2,7 +2,8 @@ import axios from "axios";
 
 const STORAGE_TOKEN_KEY = "accessToken";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || 
+  (import.meta.env.MODE === 'production' ? 'https://saathghoomo.vercel.app/api' : 'http://localhost:8000/api');
 
 const api = axios.create({
   baseURL: API_BASE_URL || "",

@@ -101,7 +101,7 @@ export const NotificationProvider = ({ children }) => {
     const token = localStorage.getItem('accessToken');
     if (!token) return;
 
-    const newSocket = io('http://localhost:8000', {
+    const newSocket = io(import.meta.env.MODE === 'production' ? 'https://saathghoomo.vercel.app' : 'http://localhost:8000', {
       auth: { token }
     });
 
