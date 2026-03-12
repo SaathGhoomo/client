@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logoUrl from "../assets/SaathGhoomo-Logo.svg";
 import { useAuth } from "../context/AuthContext";
-import NotificationBell from "./NotificationBell.jsx";
 
 function smoothScroll(id) {
   const el = document.getElementById(id);
@@ -120,9 +119,6 @@ export default function Navbar({ onOpenAuth }) {
             </div>
           ) : (
             <div className="nav-dropdown-wrap" id="navAuthIn" ref={wrapRef}>
-              {/* Notification Bell */}
-              <NotificationBell />
-              
               <button
                 className="nav-avatar-btn"
                 onClick={() => setDdOpen((v) => !v)}

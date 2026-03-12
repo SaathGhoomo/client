@@ -21,8 +21,52 @@ const ChatRoom = () => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  // Check if in production and show message
+  if (import.meta.env.MODE === 'production') {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        height: '100vh',
+        padding: '20px',
+        textAlign: 'center'
+      }}>
+        <MessageCircle size={64} style={{ marginBottom: '20px', color: '#666' }} />
+        <h2 style={{ marginBottom: '10px', color: '#333' }}>Chat Not Available</h2>
+        <p style={{ color: '#666', marginBottom: '20px' }}>
+          Real-time chat is not available in this deployment environment.
+        </p>
+        <p style={{ color: '#666', marginBottom: '20px' }}>
+          Please use Railway, Render, or another WebSocket-compatible hosting platform for real-time features.
+        </p>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
   // Initialize socket connection
   useEffect(() => {
+    // Disable Socket.IO in production (Vercel serverless)
+    if (import.meta.env.MODE === 'production') {
+      console.log('Socket.IO disabled in production (serverless environment)');
+      toast.error('Real-time chat is not available in production. Please use a different hosting platform for real-time features.');
+      return;
+    }
+
     const token = localStorage.getItem('accessToken');
     if (!token) {
       toast.error('Authentication required');
@@ -30,7 +74,7 @@ const ChatRoom = () => {
       return;
     }
 
-    const newSocket = io(import.meta.env.MODE === 'production' ? 'https://saathghoomo.vercel.app' : 'http://localhost:8000', {
+    const newSocket = io('http://localhost:8000', {
       auth: { token }
     });
 

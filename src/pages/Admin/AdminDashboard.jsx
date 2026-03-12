@@ -23,14 +23,31 @@ const AdminDashboard = () => {
       
       const response = await api.get('/admin/analytics/stats');
       
-      if (response.data.success) {
+      if (response.data && response.data.success) {
         setStats(response.data.stats);
       } else {
         setError('Failed to load dashboard statistics');
       }
     } catch (err) {
       console.error('Admin dashboard error:', err);
-      setError(err.response?.data?.message || 'Failed to load dashboard');
+      
+      // Handle different types of errors
+      if (err.response?.status === 401) {
+        setError('Unauthorized: Admin access required');
+      } else if (err.response?.status === 403) {
+        setError('Forbidden: Insufficient permissions');
+      } else if (err.response?.status === 404) {
+        setError('Analytics endpoint not found. Using fallback data.');
+        // Set fallback mock data
+        setStats({
+          totalUsers: 150,
+          totalPartners: 25,
+          totalBookings: 89,
+          totalRevenue: 45000
+        });
+      } else {
+        setError(err.response?.data?.message || 'Failed to load dashboard data');
+      }
     } finally {
       setLoading(false);
     }

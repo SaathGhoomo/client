@@ -98,10 +98,16 @@ export const NotificationProvider = ({ children }) => {
 
   // Initialize socket connection
   useEffect(() => {
+    // Disable Socket.IO in production (Vercel serverless)
+    if (import.meta.env.MODE === 'production') {
+      console.log('Socket.IO disabled in production (serverless environment)');
+      return;
+    }
+
     const token = localStorage.getItem('accessToken');
     if (!token) return;
 
-    const newSocket = io(import.meta.env.MODE === 'production' ? 'https://saathghoomo.vercel.app' : 'http://localhost:8000', {
+    const newSocket = io('http://localhost:8000', {
       auth: { token }
     });
 
